@@ -10,14 +10,33 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/timetracker')
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error('MONGODB_URI is not defined');
+}
+
+mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('❌ MongoDB Connection Error:', err));
+  .catch(err => console.error('❌ MongoDB Error:', err));
 
 // Routes
 app.use('/api/time-entries', require('./routes/timeEntries'));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    message: 'Server is running',
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    mongoUri: MONGODB_URI ? 'set' : 'missing'
+  });
 });
+
+// Root
+app.get('/', (req, res) => {
+  res.json({ message: 'Time Tracker API' });
+});
+
+// Export for Vercel (NO app.listen!)
+module.exports = app;
