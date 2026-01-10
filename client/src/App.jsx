@@ -23,17 +23,26 @@ function App() {
   }, []);
 
   const fetchEntries = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(API_URL);
+  setLoading(true);
+  try {
+    const response = await axios.get(API_URL);
+    console.log('API Response:', response.data); // Debug log
+    
+    // Make sure it's an array
+    if (Array.isArray(response.data)) {
       setEntries(response.data);
-    } catch (error) {
-      console.error('Error fetching entries:', error);
-      alert('❌ Error loading entries. Check if backend is running.');
-    } finally {
-      setLoading(false);
+    } else {
+      console.error('API did not return an array:', response.data);
+      setEntries([]);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching entries:', error);
+    setEntries([]); // Set empty array on error
+    alert('❌ Error loading entries: ' + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
