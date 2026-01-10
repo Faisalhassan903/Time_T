@@ -21,8 +21,10 @@ if (!MONGODB_URI) {
     .catch(err => console.error('❌ MongoDB Error:', err));
 }
 
-// Routes - Fix for Vercel
-const timeEntriesRouter = require(path.join(__dirname, 'routes', 'timeEntries'));
+// Routes - Standardized for Vercel
+// Vercel sometimes struggles with path.join in require. 
+// Standard relative paths are usually best.
+const timeEntriesRouter = require('./routes/timeEntries');
 app.use('/api/time-entries', timeEntriesRouter);
 
 // Health check
@@ -34,15 +36,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Time Tracker API',
-    status: 'running'
-  });
+  res.json({ message: 'Time Tracker API', status: 'running' });
 });
 
-// Only listen in development
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
@@ -50,5 +47,4 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Export for Vercel
 module.exports = app;
