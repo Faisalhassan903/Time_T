@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const TimeEntry = require('../models/TimeEntry');
 const ExcelJS = require('exceljs');
-const TimeEntry = require('../models/TimeEntry');
+
 
 // Helper function to calculate hours
 const calculateHours = (start, end) => {
