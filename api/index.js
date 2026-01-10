@@ -10,14 +10,21 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
+// MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
+
+console.log('🔍 MONGODB_URI exists:', !!MONGODB_URI);
+console.log('🔍 MONGODB_URI length:', MONGODB_URI ? MONGODB_URI.length : 0);
 
 if (MONGODB_URI) {
   mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.error('❌ MongoDB Error:', err));
+    .then(() => console.log('✅ MongoDB Connected Successfully'))
+    .catch(err => {
+      console.error('❌ MongoDB Connection Error:', err.message);
+      console.error('❌ Full error:', err);
+    });
 } else {
-  console.error('❌ MONGODB_URI not defined');
+  console.error('❌ MONGODB_URI not defined in environment');
 }
 
 // Routes - Now using relative path from api folder
