@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -12,12 +13,17 @@ app.use(express.json());
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Connected Successfully'))
-  .catch(err => console.error('❌ MongoDB Connection Error:', err));
+if (!MONGODB_URI) {
+  console.error('❌ MONGODB_URI is not defined');
+} else {
+  mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ MongoDB Connected'))
+    .catch(err => console.error('❌ MongoDB Error:', err));
+}
 
-// Routes
-app.use('/api/time-entries', require('./routes/timeEntries'));
+// Routes - Fix for Vercel
+const timeEntriesRouter = require(path.join(__dirname, 'routes', 'timeEntries'));
+app.use('/api/time-entries', timeEntriesRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -36,7 +42,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Only listen in development (local)
+// Only listen in development
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
