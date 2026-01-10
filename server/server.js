@@ -12,13 +12,9 @@ app.use(express.json());
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  console.error('MONGODB_URI is not defined');
-}
-
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('❌ MongoDB Error:', err));
+  .then(() => console.log('✅ MongoDB Connected Successfully'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 // Routes
 app.use('/api/time-entries', require('./routes/timeEntries'));
@@ -28,15 +24,25 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok',
     message: 'Server is running',
-    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    mongoUri: MONGODB_URI ? 'set' : 'missing'
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
 // Root
 app.get('/', (req, res) => {
-  res.json({ message: 'Time Tracker API' });
+  res.json({ 
+    message: 'Time Tracker API',
+    status: 'running'
+  });
 });
 
-// Export for Vercel (NO app.listen!)
+// Only listen in development (local)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Local server running on http://localhost:${PORT}`);
+  });
+}
+
+// Export for Vercel
 module.exports = app;
